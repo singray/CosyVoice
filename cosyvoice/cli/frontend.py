@@ -69,6 +69,7 @@ class CosyVoiceFrontEnd:
             self.frd.set_lang_type('pinyinvg')
         else:
             self.zh_tn_model = ZhNormalizer(remove_erhua=False, full_to_half=False, overwrite_cache=True)
+            #self.zh_tn_model = ZhNormalizer(remove_erhua=False, full_to_half=False, overwrite_cache=True, remove_interjections=False)
             self.en_tn_model = EnNormalizer()
             self.inflect_parser = inflect.engine()
 
@@ -162,11 +163,13 @@ class CosyVoiceFrontEnd:
             speech_feat, speech_feat_len = self._extract_speech_feat(prompt_speech_resample)
             speech_token, speech_token_len = self._extract_speech_token(prompt_speech_16k)
             if resample_rate == 24000:
+                logging.info(f'-1212121---->-----> {resample_rate}')
                 # cosyvoice2, force speech_feat % speech_token = 2
                 token_len = min(int(speech_feat.shape[1] / 2), speech_token.shape[1])
                 speech_feat, speech_feat_len[:] = speech_feat[:, :2 * token_len], 2 * token_len
                 speech_token, speech_token_len[:] = speech_token[:, :token_len], token_len
             embedding = self._extract_spk_embedding(prompt_speech_16k)
+            logging.info(f'-12121213213---->-----> {resample_rate}')
             model_input = {'prompt_text': prompt_text_token, 'prompt_text_len': prompt_text_token_len,
                            'llm_prompt_speech_token': speech_token, 'llm_prompt_speech_token_len': speech_token_len,
                            'flow_prompt_speech_token': speech_token, 'flow_prompt_speech_token_len': speech_token_len,
